@@ -1,4 +1,5 @@
 import PyQt6
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QVBoxLayout, QLabel, QWidget, QGridLayout, QLineEdit, QPushButton,\
     QMainWindow, QTableWidget, QTableWidgetItem, QDialog, QComboBox
 from PyQt6.QtGui import QAction
@@ -77,7 +78,19 @@ class SearchDialog(QDialog):
         self.setLayout(layout)
 
     def searching(self):
-        pass
+        name = self.search_name.text()
+        connection = sqlite3.connect("database.db")
+        cursor = connection.cursor()
+        result = cursor.execute("SELECT * FROM students WHERE name = ?", (name,))
+        rows = list(result)
+        print(rows)
+        items = main_window.table.findItems(name, Qt.MatchFlag.MatchFixedString)
+        for item in items:
+            print(item)
+            main_window.table.item(item.row(), 1).setSelected(True)
+
+        cursor.close()
+        connection.close()
 
 
 class InsertDialog(QDialog):
@@ -127,7 +140,7 @@ class InsertDialog(QDialog):
 
 
 app = QApplication(sys.argv)
-age_calculator = MainWindow()
-age_calculator.show()
-age_calculator.load_data()
+main_window = MainWindow()
+main_window.show()
+main_window.load_data()
 sys.exit(app.exec())
